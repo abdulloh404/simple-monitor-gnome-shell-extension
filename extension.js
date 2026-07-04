@@ -145,12 +145,16 @@ class Indicator extends PanelMenu.Button {
         let box = new St.BoxLayout({ style_class: 'panel-status-menu-box' });
         let cputbox = new St.BoxLayout({ height: 25.0, style_class: 'popup-status-menu-box' });
         let memtbox = new St.BoxLayout({ height: 25.0, style_class: 'popup-status-menu-box' });
+        let swaptbox = new St.BoxLayout({ height: 25.0, style_class: 'popup-status-menu-box' });
         let cpuBoxes = new Array(10);
         let memBoxes = new Array(10);
         let cpuNameLabels = new Array(10);
         let cpulLabels = new Array(10);
         let memNameLabels = new Array(10);
         let memlLabels = new Array(10);
+        let swapBoxes = new Array(10);
+        let swapNameLabels = new Array(10);
+        let swaplLabels = new Array(10);
         for (i = 0; i < 10; i++) {
             cpuBoxes[i] = new St.BoxLayout({ height: 20.0, style_class: 'popup-status-menu-box' });
             memBoxes[i] = new St.BoxLayout({ height: 20.0, style_class: 'popup-status-menu-box' });
@@ -158,6 +162,9 @@ class Indicator extends PanelMenu.Button {
             cpulLabels[i] = new St.Label({text: '----', x_expand: true, x_align: Clutter.ActorAlign.END, translation_x: -24.0});
             memNameLabels[i] = new St.Label({text: '----', x_expand: true, x_align: Clutter.ActorAlign.START, translation_x: 24.0});
             memlLabels[i] = new St.Label({text: '----', x_expand: true, x_align: Clutter.ActorAlign.END, translation_x: -24.0});
+            swapBoxes[i] = new St.BoxLayout({ height: 20.0, visible: false, style_class: 'popup-status-menu-box' });
+            swapNameLabels[i] = new St.Label({text: '----', x_expand: true, x_align: Clutter.ActorAlign.START, translation_x: 24.0});
+            swaplLabels[i] = new St.Label({text: '----', x_expand: true, x_align: Clutter.ActorAlign.END, translation_x: -24.0});
         }
 
         //Labels
@@ -168,6 +175,8 @@ class Indicator extends PanelMenu.Button {
         let procMLabel = new St.Label({text: _("Process"), x_expand: true, x_align: Clutter.ActorAlign.START, translation_x: 24.0});
         let cpuLabel = new St.Label({text: _("Cpu%"), x_expand: true, x_align: Clutter.ActorAlign.END, translation_x: -24.0});
         let memLabel = new St.Label({text: _("Mem%"), x_expand: true, x_align: Clutter.ActorAlign.END, translation_x: -24.0});
+        let procSLabel = new St.Label({text: _("Process"), x_expand: true, x_align: Clutter.ActorAlign.START, translation_x: 24.0});
+        let swapLabel = new St.Label({text: _("Swap"), x_expand: true, x_align: Clutter.ActorAlign.END, translation_x: -24.0});
 
         //Buttons
         let refreshButton = new PopupMenu.PopupBaseMenuItem();
@@ -297,6 +306,27 @@ class Indicator extends PanelMenu.Button {
                 memlLabels[i].set_text(cpuSpl[cpuSpl.length - 1]);
             }
             });
+
+            // Per-process swap usage read from /proc/[pid]/status (VmSwap). Kernel threads
+            // have no VmSwap line and are skipped; rows with no data are left blank.
+            let swapPOut = execCommunicate(['bash', '-c',
+                "awk 'FNR==1{if(s+0>0)print s,n; n=\"\";s=0} /^Name:/{n=$2} /^VmSwap:/{s=$2} END{if(s+0>0)print s,n}' /proc/[0-9]*/status 2>/dev/null | sort -rn | head -10"]);
+            swapPOut.then(function(result) {
+            let procs = result === '' ? [] : result.split("\n");
+            for (i = 0; i < 10; i++) {
+                if (i >= procs.length) {
+                    swapBoxes[i].hide();
+                    continue;
+                }
+                let swapSplit = procs[i].split(/[ ]+/);
+                let kb = parseFloat(swapSplit[0]);
+                let name = swapSplit.slice(1).join(' ').substring(0, 15);
+                let val = kb >= 1048576 ? (kb/1048576).toFixed(1)+'G' : (kb/1024).toFixed(0)+'M';
+                swapNameLabels[i].set_text(name);
+                swaplLabels[i].set_text(val);
+                swapBoxes[i].show();
+            }
+            });
         }
 
         //Layouts
@@ -329,6 +359,15 @@ class Indicator extends PanelMenu.Button {
             memBoxes[i].add(memNameLabels[i]);
             memBoxes[i].add(memlLabels[i]);
             this.menu.box.add(memBoxes[i]);
+        }
+        this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
+        swaptbox.add(procSLabel);
+        swaptbox.add(swapLabel);
+        this.menu.box.add(swaptbox);
+        for (i = 0; i < 10; i++) {
+            swapBoxes[i].add(swapNameLabels[i]);
+            swapBoxes[i].add(swaplLabels[i]);
+            this.menu.box.add(swapBoxes[i]);
         }
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
         this.menu.addMenuItem(refreshButton);
