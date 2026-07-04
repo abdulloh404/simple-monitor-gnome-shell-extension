@@ -123,24 +123,24 @@ class Indicator extends PanelMenu.Button {
         }
 
         //Icons
-        let cpuGioIcon = Gio.icon_new_for_string(Me.path + '/icons/cpu-symbolic.svg');
-        let cpuIcon = new St.Icon({
-          gicon: cpuGioIcon,
-          style_class: 'system-status-icon',
-          x_align: Clutter.ActorAlign.CENTER,
-          x_expand: true,
-          y_align: Clutter.ActorAlign.CENTER,
-          y_expand: true
-        });
-        let memGioIcon = Gio.icon_new_for_string(Me.path + '/icons/mem-symbolic.svg');
-        let memIcon = new St.Icon({
-          gicon: memGioIcon,
-          style_class: 'system-status-icon',
-          x_align: Clutter.ActorAlign.CENTER,
-          x_expand: true,
-          y_align: Clutter.ActorAlign.CENTER,
-          y_expand: true
-        });
+        // let cpuGioIcon = Gio.icon_new_for_string(Me.path + '/icons/cpu-symbolic.svg');
+        // let cpuIcon = new St.Icon({
+        //   gicon: cpuGioIcon,
+        //   style_class: 'system-status-icon',
+        //   x_align: Clutter.ActorAlign.CENTER,
+        //   x_expand: true,
+        //   y_align: Clutter.ActorAlign.CENTER,
+        //   y_expand: true
+        // });
+        // let memGioIcon = Gio.icon_new_for_string(Me.path + '/icons/mem-symbolic.svg');
+        // let memIcon = new St.Icon({
+        //   gicon: memGioIcon,
+        //   style_class: 'system-status-icon',
+        //   x_align: Clutter.ActorAlign.CENTER,
+        //   x_expand: true,
+        //   y_align: Clutter.ActorAlign.CENTER,
+        //   y_expand: true
+        // });
         //Boxes
         let box = new St.BoxLayout({ style_class: 'panel-status-menu-box' });
         let cputbox = new St.BoxLayout({ height: 25.0, style_class: 'popup-status-menu-box' });
@@ -277,10 +277,10 @@ class Indicator extends PanelMenu.Button {
 
         //Layouts
         //Panel button layout
-        box.add_child(cpuIcon);
+        // box.add_child(cpuIcon);
         cpuPanelLabel.set_width(50);
         box.add_child(cpuPanelLabel);
-        box.add_child(memIcon);
+        // box.add_child(memIcon);
         box.add_child(memPanelLabel);
         this.add_child(box);
 
