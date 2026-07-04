@@ -161,9 +161,9 @@ class Indicator extends PanelMenu.Button {
         }
 
         //Labels
-        let cpuPanelLabel = new St.Label({text: '----', x_expand: true, x_align: Clutter.ActorAlign.CENTER, y_align: Clutter.ActorAlign.CENTER, y_expand: true});
-        let memPanelLabel = new St.Label({text: '----', x_expand: true, x_align: Clutter.ActorAlign.CENTER, y_align: Clutter.ActorAlign.CENTER, y_expand: true});
-        let swapPanelLabel = new St.Label({text: '', visible: false, x_expand: true, x_align: Clutter.ActorAlign.CENTER, y_align: Clutter.ActorAlign.CENTER, y_expand: true});
+        let cpuPanelLabel = new St.Label({text: '----', x_align: Clutter.ActorAlign.CENTER, y_align: Clutter.ActorAlign.CENTER, y_expand: true});
+        let memPanelLabel = new St.Label({text: '----', x_align: Clutter.ActorAlign.CENTER, y_align: Clutter.ActorAlign.CENTER, y_expand: true});
+        let swapPanelLabel = new St.Label({text: '', visible: false, x_align: Clutter.ActorAlign.CENTER, y_align: Clutter.ActorAlign.CENTER, y_expand: true});
         let procLabel = new St.Label({text: _("Process"), x_expand: true, x_align: Clutter.ActorAlign.START, translation_x: 24.0});
         let procMLabel = new St.Label({text: _("Process"), x_expand: true, x_align: Clutter.ActorAlign.START, translation_x: 24.0});
         let cpuLabel = new St.Label({text: _("Cpu%"), x_expand: true, x_align: Clutter.ActorAlign.END, translation_x: -24.0});
@@ -302,7 +302,10 @@ class Indicator extends PanelMenu.Button {
         //Layouts
         //Panel button layout
         // box.add_child(cpuIcon);
-        cpuPanelLabel.set_width(50);
+        let panelLabelWidth = 44;
+        cpuPanelLabel.set_width(panelLabelWidth);
+        memPanelLabel.set_width(panelLabelWidth);
+        swapPanelLabel.set_width(panelLabelWidth);
         box.add_child(cpuPanelLabel);
         // box.add_child(memIcon);
         box.add_child(memPanelLabel);
