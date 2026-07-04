@@ -163,6 +163,7 @@ class Indicator extends PanelMenu.Button {
         //Labels
         let cpuPanelLabel = new St.Label({text: '----', x_expand: true, x_align: Clutter.ActorAlign.CENTER, y_align: Clutter.ActorAlign.CENTER, y_expand: true});
         let memPanelLabel = new St.Label({text: '----', x_expand: true, x_align: Clutter.ActorAlign.CENTER, y_align: Clutter.ActorAlign.CENTER, y_expand: true});
+        let swapPanelLabel = new St.Label({text: '', visible: false, x_expand: true, x_align: Clutter.ActorAlign.CENTER, y_align: Clutter.ActorAlign.CENTER, y_expand: true});
         let procLabel = new St.Label({text: _("Process"), x_expand: true, x_align: Clutter.ActorAlign.START, translation_x: 24.0});
         let procMLabel = new St.Label({text: _("Process"), x_expand: true, x_align: Clutter.ActorAlign.START, translation_x: 24.0});
         let cpuLabel = new St.Label({text: _("Cpu%"), x_expand: true, x_align: Clutter.ActorAlign.END, translation_x: -24.0});
@@ -209,15 +210,38 @@ class Indicator extends PanelMenu.Button {
             memOut.then(function(result) {
             let lines = result.split("\n");
             let freeSpl = lines[1].split(/[ ]+/);
+            let memTotal = parseFloat(freeSpl[1]);
+            let memAvail = parseFloat(freeSpl[6]);
+            let memUsed = Number.isNaN(memAvail) ? parseFloat(freeSpl[2]) : memTotal - memAvail;
             let lblStr = '';
             if (_settings.get_boolean('mem-perc')) {
-                let percmem = parseFloat(freeSpl[2])*100.0/parseFloat(freeSpl[1]);
+                let percmem = memUsed*100.0/memTotal;
                 lblStr = ('  '+percmem.toFixed(1)+'%').slice(-6);
             }
             else {
-                lblStr = ('  ' + (parseFloat(freeSpl[2])/2**20).toFixed(1) + '/' + (parseFloat(freeSpl[1])/2**20).toFixed(0) + 'Gb').slice(-10);
+                lblStr = ('  ' + (memUsed/2**20).toFixed(1) + '/' + (memTotal/2**20).toFixed(0) + 'Gb').slice(-10);
             }
             memPanelLabel.set_text(lblStr);
+
+            // Swap: only shown when swap is enabled (total > 0), using the same %/Gb mode.
+            let swapSpl = lines[2].split(/[ ]+/);
+            let swapTotal = parseFloat(swapSpl[1]);
+            if (!swapTotal) {
+                swapPanelLabel.hide();
+            }
+            else {
+                let swapUsed = parseFloat(swapSpl[2]);
+                let swapStr = '';
+                if (_settings.get_boolean('mem-perc')) {
+                    let percswap = swapUsed*100.0/swapTotal;
+                    swapStr = ('  '+percswap.toFixed(1)+'%').slice(-6);
+                }
+                else {
+                    swapStr = ('  ' + (swapUsed/2**20).toFixed(1) + '/' + (swapTotal/2**20).toFixed(0) + 'Gb').slice(-10);
+                }
+                swapPanelLabel.set_text(swapStr);
+                swapPanelLabel.show();
+            }
             });
 
             if (_settings.get_boolean('top-or-ps')) {
@@ -282,6 +306,7 @@ class Indicator extends PanelMenu.Button {
         box.add_child(cpuPanelLabel);
         // box.add_child(memIcon);
         box.add_child(memPanelLabel);
+        box.add_child(swapPanelLabel);
         this.add_child(box);
 
         //Click menu layout

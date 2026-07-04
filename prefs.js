@@ -27,8 +27,8 @@ var MonitorPrefs = new GObject.registerClass(class SimpleMonitorPrefs extends Gt
 
         this._addSwitch({
             key: 'mem-perc', y: 0, x: 0,
-            label: _('Show memory percentage'),
-            help: _('If on, memory usage is shown as percentage of total. If off, it is shown as used GiB')
+            label: _('Show memory & swap percentage'),
+            help: _('If on, memory and swap usage are shown as percentage of total. If off, they are shown as used/total GiB')
         });
 
         this._addButtons({
